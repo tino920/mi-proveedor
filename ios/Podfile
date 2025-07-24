@@ -1,13 +1,11 @@
-# 📱 PODFILE OPTIMIZADO PARA MIPROVEEDOR
-# Configuración profesional para Flutter + Firebase + Biométrica
+# 📱 PODFILE CORREGIDO PARA MIPROVEEDOR
+# Configuración limpia sin dependencias incorrectas
 
-# Versión mínima iOS (compatible con todas las funcionalidades)
 platform :ios, '12.0'
 
-# Configuraciones importantes
+# Configuraciones importantes  
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
 
-# Permitir CocoaPods verificar el proyecto
 project 'Runner', {
   'Debug' => :debug,
   'Profile' => :release,
@@ -35,31 +33,15 @@ target 'Runner' do
   use_frameworks!
   use_modular_headers!
 
-  # 🔥 FLUTTER PODS (AUTOMÁTICO)
+  # 🔥 FLUTTER PODS AUTOMÁTICO (esto es lo único que necesitamos)
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
-  
-  # 🔥 FIREBASE PODS ESPECÍFICOS (para optimización)
-  pod 'Firebase/Core'
-  pod 'Firebase/Auth'
-  pod 'Firebase/Firestore'
-  pod 'Firebase/Storage'
-  pod 'Firebase/Messaging'
-  pod 'Firebase/Analytics'
-  pod 'Firebase/Crashlytics'
-  pod 'Firebase/AppCheck'
-  
-  # 🔐 AUTENTICACIÓN BIOMÉTRICA
-  pod 'LocalAuthentication'
-  
-  # 🔔 NOTIFICACIONES
-  pod 'UserNotifications'
   
   target 'RunnerTests' do
     inherit! :search_paths
   end
 end
 
-# 📱 CONFIGURACIONES POST-INSTALACIÓN
+# 📱 CONFIGURACIONES POST-INSTALACIÓN SIMPLIFICADAS
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
@@ -68,53 +50,12 @@ post_install do |installer|
     target.build_configurations.each do |config|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.0'
       config.build_settings['ENABLE_BITCODE'] = 'NO'
-      
-      # 🔧 OPTIMIZACIONES PARA SWIFT
-      if target.respond_to?(:product_type) and target.product_type == "com.apple.product-type.bundle"
-        target.build_configurations.each do |config|
-          config.build_settings['CODE_SIGNING_ALLOWED'] = 'NO'
-        end
-      end
-      
-      # 🚀 OPTIMIZACIONES DE RENDIMIENTO
-      config.build_settings['GCC_OPTIMIZATION_LEVEL'] = '0'
-      config.build_settings['SWIFT_OPTIMIZATION_LEVEL'] = '-Onone'
-      
-      # 🔒 CONFIGURACIONES DE SEGURIDAD
-      config.build_settings['VALIDATE_PRODUCT'] = 'YES'
-      config.build_settings['ONLY_ACTIVE_ARCH'] = 'YES'
-      
-      # 📱 SOPORTE PARA NUEVAS VERSIONES iOS
-      if config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'].to_f < 12.0
-        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.0'
-      end
-    end
-  end
-  
-  # 🔄 CONFIGURAR PODS ESPECÍFICOS
-  installer.pods_project.targets.each do |target|
-    case target.name
-    when 'FMDB'
-      target.build_configurations.each do |config|
-        config.build_settings['CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF'] = 'NO'
-      end
-    when 'nanopb'
-      target.build_configurations.each do |config|
-        config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= [
-          '$(inherited)',
-          'PB_FIELD_32BIT=1',
-          'PB_NO_PACKED_STRUCTS=1',
-          'PB_ENABLE_MALLOC=1',
-        ]
-      end
     end
   end
   
   # ✅ MENSAJE DE ÉXITO
   puts "\n🎉 ¡Pods instalados correctamente para MiProveedor!"
-  puts "📱 Soporte para iOS 12.0+"
-  puts "🔥 Firebase completamente configurado"
-  puts "🔐 Autenticación biométrica lista"
-  puts "🔔 Notificaciones push configuradas"
-  puts "\n✅ Proyecto listo para desarrollo iOS\n"
+  puts "📱 Configuración iOS limpia y funcional"
+  puts "🔥 Flutter dependencies gestionadas automáticamente"
+  puts "\n✅ Listo para build iOS\n"
 end
