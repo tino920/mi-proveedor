@@ -6,6 +6,7 @@ version: 1.0.0+1
 environment:
   sdk: '>=3.1.0 <4.0.0'
   flutter: ">=3.16.0"
+  # iOS: 13.0+ requerido para Firebase moderno
 
 dependencies:
   flutter:

@@ -1,7 +1,7 @@
 # 📱 PODFILE CORREGIDO PARA MIPROVEEDOR
 # Configuración limpia sin dependencias incorrectas
 
-platform :ios, '12.0'
+platform :ios, '13.0'
 
 # Configuraciones importantes  
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
@@ -48,7 +48,7 @@ post_install do |installer|
     
     # 🎯 CONFIGURAR DEPLOYMENT TARGET
     target.build_configurations.each do |config|
-      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.0'
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
       config.build_settings['ENABLE_BITCODE'] = 'NO'
     end
   end
