@@ -39,7 +39,7 @@ jobs:
       run: flutter test --coverage || echo "📝 No tests found, skipping..."
       
     - name: 📊 Upload Coverage
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
       if: success()
       with:
         file: coverage/lcov.info
@@ -57,7 +57,7 @@ jobs:
       
     # ☕ 2. Setup Java (necesario para Flutter)
     - name: ☕ Setup Java
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
         distribution: 'zulu'
         java-version: ${{ env.JAVA_VERSION }}
@@ -135,7 +135,7 @@ jobs:
         
     # ⬆️ 10. Upload IPA como Artifact
     - name: ⬆️ Upload IPA Artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: MiProveedor-iOS-Build-${{ github.run_number }}
         path: MiProveedor-iOS-*.ipa
