@@ -68,7 +68,7 @@ dependencies:
   # Localization
   flutter_localizations:
     sdk: flutter
-  intl: ^0.19.0
+  # intl: gestionado automáticamente por flutter_localizations
 
   # Design System
   cupertino_icons: ^1.0.6
