@@ -20,7 +20,7 @@ git add pubspec.yaml
 
 echo.
 echo 💾 2. Creando commit con la solucion...
-git commit -m "fix(ci): Actualizar Flutter a 3.22.2 en GitHub Actions
+git commit -m "fix(ci): Actualizar Flutter a 3.32.7 en GitHub Actions
 
 Se actualiza la version de Flutter en el workflow de CI para resolver conflictos de dependencias.
 
