@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "67472339399",
+    "project_id": "mi-app-proveedor",
+    "storage_bucket": "mi-app-proveedor.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:67472339399:android:f8875aefbf08ec581369e2",
+        "android_client_info": {
+          "package_name": "com.example.restau_pedidos"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyANc-5soI8_7z30T3C4rMEIZMGeA-gP2xA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,193 @@
+# 🚀 GITHUB ACTIONS - BUILD iOS AUTOMÁTICO - MiProveedor
+# Configurado por MobilePro para desarrollo sin Mac
+
+name: 🍎 iOS Build - MiProveedor
+
+on:
+  push:
+    branches: [ main, develop, ios-* ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch: # Permite ejecutar manualmente desde GitHub
+
+env:
+  FLUTTER_VERSION: '3.16.0'
+  JAVA_VERSION: '17'
+
+jobs:
+  # 🧪 JOB 1: ANÁLISIS Y TESTS
+  analyze:
+    name: 🔍 Análisis de Código
+    runs-on: ubuntu-latest
+    steps:
+    - name: 📥 Checkout
+      uses: actions/checkout@v4
+      
+    - name: 🐦 Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: ${{ env.FLUTTER_VERSION }}
+        channel: 'stable'
+        
+    - name: 📦 Dependencies
+      run: flutter pub get
+      
+    - name: 🔍 Analyze
+      run: flutter analyze --fatal-infos
+      
+    - name: 🧪 Tests
+      run: flutter test --coverage
+      
+    - name: 📊 Upload Coverage
+      uses: codecov/codecov-action@v3
+      if: success()
+      with:
+        file: coverage/lcov.info
+
+  # 📱 JOB 2: BUILD iOS
+  build-ios:
+    name: 🍎 Build iOS
+    runs-on: macos-latest
+    needs: analyze
+    
+    steps:
+    # 📥 1. Checkout del código
+    - name: 📥 Checkout Repository
+      uses: actions/checkout@v4
+      
+    # ☕ 2. Setup Java (necesario para Flutter)
+    - name: ☕ Setup Java
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'zulu'
+        java-version: ${{ env.JAVA_VERSION }}
+        
+    # 🐦 3. Setup Flutter
+    - name: 🐦 Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: ${{ env.FLUTTER_VERSION }}
+        channel: 'stable'
+        
+    # 📦 4. Install dependencies
+    - name: 📦 Flutter Pub Get
+      run: flutter pub get
+      
+    # 🔧 5. Flutter Clean (por si acaso)
+    - name: 🔧 Flutter Clean
+      run: flutter clean && flutter pub get
+      
+    # 🍎 6. Setup iOS dependencies
+    - name: 🍎 Install CocoaPods
+      run: |
+        cd ios
+        # Limpiar pods anteriores
+        pod deintegrate 2>/dev/null || true
+        rm -rf Pods/ Podfile.lock
+        # Instalar fresh
+        pod install --repo-update
+        
+    # 🔍 7. Verificar configuración iOS
+    - name: 🔍 Verify iOS Setup
+      run: |
+        echo "🔍 Verificando configuración iOS..."
+        ls -la ios/Runner/
+        if [ -f "ios/Runner/GoogleService-Info.plist" ]; then
+          echo "✅ GoogleService-Info.plist encontrado"
+        else
+          echo "⚠️ ADVERTENCIA: GoogleService-Info.plist NO encontrado"
+          echo "📋 Para apps con Firebase, añádelo a ios/Runner/"
+        fi
+        
+    # 📱 8. Build iOS App (sin code signing)
+    - name: 📱 Build iOS App
+      run: |
+        echo "🔨 Iniciando build iOS..."
+        flutter build ios --release --no-codesign --verbose
+        echo "✅ Build completado"
+        
+    # 📦 9. Create IPA (sin signing para distribución)
+    - name: 📦 Create IPA Archive
+      run: |
+        echo "📦 Creando archivo IPA..."
+        cd build/ios/iphoneos
+        
+        # Crear estructura IPA
+        mkdir -p Payload
+        cp -r Runner.app Payload/
+        
+        # Información del build
+        BUILD_NUMBER=${{ github.run_number }}
+        DATE=$(date '+%Y%m%d_%H%M')
+        IPA_NAME="MiProveedor-iOS-${BUILD_NUMBER}-${DATE}.ipa"
+        
+        # Crear IPA
+        zip -r "${IPA_NAME}" Payload/
+        
+        # Info
+        echo "📱 IPA creado: ${IPA_NAME}"
+        ls -lh "${IPA_NAME}"
+        
+        # Mover a directorio accesible
+        mv "${IPA_NAME}" ../../../
+        
+        echo "✅ IPA listo para descarga"
+        
+    # ⬆️ 10. Upload IPA como Artifact
+    - name: ⬆️ Upload IPA Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: MiProveedor-iOS-Build-${{ github.run_number }}
+        path: MiProveedor-iOS-*.ipa
+        retention-days: 30
+        
+    # 📊 11. Build Summary
+    - name: 📊 Build Summary
+      run: |
+        echo "🎉 BUILD COMPLETADO EXITOSAMENTE!"
+        echo "=================================="
+        echo "📱 Proyecto: MiProveedor"
+        echo "🔨 Build #${{ github.run_number }}"
+        echo "📅 Fecha: $(date)"
+        echo "🍎 Plataforma: iOS"
+        echo "📦 Archivo: MiProveedor-iOS-${{ github.run_number }}-*.ipa"
+        echo ""
+        echo "📥 CÓMO DESCARGAR:"
+        echo "1. Ve a la pestaña 'Actions' de tu repositorio"
+        echo "2. Haz clic en este workflow run"
+        echo "3. Descarga el artifact 'MiProveedor-iOS-Build-${{ github.run_number }}'"
+        echo ""
+        echo "⚠️  NOTA IMPORTANTE:"
+        echo "El archivo .ipa NO está firmado (code signed)"
+        echo "Para instalar en dispositivo real necesitas:"
+        echo "- Abrir en Xcode y firmar con tu Apple Developer Account"
+        echo "- O usar herramientas como Diawi para distribución"
+        echo ""
+        echo "🚀 ¡Tu app está lista para iOS!"
+        echo "   Desarrollado por MobilePro ✨"
+        
+    # 🔔 12. Notificación de éxito (opcional)
+    - name: 🔔 Success Notification
+      if: success()
+      run: |
+        echo "✅ ÉXITO: Build iOS completado sin errores"
+        
+    # ❌ 13. Notificación de error (opcional)  
+    - name: ❌ Error Notification
+      if: failure()
+      run: |
+        echo "❌ ERROR: El build iOS falló"
+        echo "🔍 Revisa los logs anteriores para detalles"
+        echo "💡 Problemas comunes:"
+        echo "   - Dependencias en pubspec.yaml"
+        echo "   - Configuración Firebase"
+        echo "   - Errores de sintaxis Dart"
+
+# 🎯 CONFIGURACIÓN ADICIONAL
+# Para builds con code signing (Apple Developer Account):
+# 1. Ve a Settings > Secrets and Variables > Actions
+# 2. Añade estos secrets:
+#    - IOS_CERTIFICATE_BASE64
+#    - IOS_CERTIFICATE_PASSWORD  
+#    - IOS_PROVISIONING_PROFILE_BASE64
+#    - KEYCHAIN_PASSWORD

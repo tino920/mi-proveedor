@@ -1,0 +1,67 @@
+@echo off
+cls
+echo ========================================
+echo 🚀 SOLUCION DEFINITIVA - PANTALLA PEDIDOS
+echo ========================================
+echo.
+
+cd /d "C:\Users\danie\Downloads\tu_proveedor"
+
+echo ✅ Archivo employee_orders_screen.dart actualizado
+echo ❌ Archivo orders_screen.dart marcado como obsoleto
+echo.
+
+echo 🧹 Limpiando cache completamente...
+flutter clean
+if errorlevel 1 (
+    echo ❌ Error en flutter clean
+    pause
+    exit /b 1
+)
+
+echo.
+echo 📦 Reinstalando dependencias...
+flutter pub get
+if errorlevel 1 (
+    echo ❌ Error en flutter pub get
+    pause
+    exit /b 1
+)
+
+echo.
+echo 🔥 Iniciando Flutter con hot restart...
+echo.
+echo 📱 INSTRUCCIONES IMPORTANTES:
+echo 1. Cuando se abra la app, presiona 'R' (mayúscula) para hot restart
+echo 2. Ve a la pestaña "Pedidos" (segunda pestaña)
+echo 3. Deberías ver "Selecciona un Proveedor" con lista de proveedores
+echo.
+echo ======================================
+echo 🎯 RESULTADO ESPERADO:
+echo ✅ Header azul "Selecciona un Proveedor"
+echo ✅ Lista de proveedores con imágenes
+echo ✅ Al tocar proveedor, navega a crear pedido
+echo ======================================
+echo.
+
+flutter run --verbose
+
+echo.
+echo ¿La pantalla de pedidos funciona correctamente? (S/N)
+set /p respuesta="> "
+
+if /i "%respuesta%"=="S" (
+    echo.
+    echo 🎉 ¡PERFECTO! Pantalla de pedidos solucionada
+    echo ✅ Tu app MiProveedor está funcionando correctamente
+    echo.
+) else (
+    echo.
+    echo 🔍 Si aún no funciona, verifica:
+    echo 1. Que tengas proveedores creados como admin
+    echo 2. Que estés logueado como empleado
+    echo 3. Que la consola no muestre errores
+    echo.
+)
+
+pause

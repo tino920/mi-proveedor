@@ -1,0 +1,68 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Companies collection - Solo miembros pueden acceder
+    match /companies/{companyId} {
+      allow read, write: if request.auth != null && 
+        request.auth.uid in resource.data.members;
+      
+      // Employees subcollection
+      match /employees/{employeeId} {
+        allow read: if request.auth != null && 
+          request.auth.uid in get(/databases/$(database)/documents/companies/$(companyId)).data.members;
+        allow write: if request.auth != null && 
+          (request.auth.uid == resource.data.uid ||
+           request.auth.uid in get(/databases/$(database)/documents/companies/$(companyId)).data.admins);
+      }
+      
+      // Suppliers subcollection
+      match /suppliers/{supplierId} {
+        allow read: if request.auth != null && 
+          request.auth.uid in get(/databases/$(database)/documents/companies/$(companyId)).data.members;
+        allow write: if request.auth != null && 
+          request.auth.uid in get(/databases/$(database)/documents/companies/$(companyId)).data.admins;
+      }
+      
+      // Products subcollection
+      match /products/{productId} {
+        allow read: if request.auth != null && 
+          request.auth.uid in get(/databases/$(database)/documents/companies/$(companyId)).data.members;
+        allow write: if request.auth != null && 
+          request.auth.uid in get(/databases/$(database)/documents/companies/$(companyId)).data.admins;
+      }
+      
+      // Orders subcollection - NUEVA FUNCIONALIDAD
+      match /orders/{orderId} {
+        // Cualquier miembro puede leer pedidos de su empresa
+        allow read: if request.auth != null && 
+          request.auth.uid in get(/databases/$(database)/documents/companies/$(companyId)).data.members;
+        
+        // Empleados pueden crear pedidos
+        allow create: if request.auth != null && 
+          request.auth.uid in get(/databases/$(database)/documents/companies/$(companyId)).data.members &&
+          request.auth.uid == request.resource.data.employeeId;
+        
+        // Solo el empleado que creó el pedido o un admin pueden actualizar
+        allow update: if request.auth != null && 
+          (request.auth.uid == resource.data.employeeId || 
+           request.auth.uid in get(/databases/$(database)/documents/companies/$(companyId)).data.admins);
+        
+        // Solo admins pueden eliminar pedidos
+        allow delete: if request.auth != null && 
+          request.auth.uid in get(/databases/$(database)/documents/companies/$(companyId)).data.admins;
+      }
+    }
+    
+    // User profiles - Global access for authenticated users
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Company codes - Para validación de códigos de empresa
+    match /companyCodes/{codeId} {
+      allow read: if request.auth != null;
+      allow write: if false; // Solo se crean via Cloud Functions
+    }
+  }
+}

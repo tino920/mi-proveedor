@@ -1,0 +1,24 @@
+// REGLAS SIMPLES PARA TESTING - USAR TEMPORALMENTE
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // REGLAS MUY PERMISIVAS PARA DEBUGGING
+    // ¡SOLO PARA DESARROLLO, NO PARA PRODUCCIÓN!
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
+
+/*
+INSTRUCCIONES:
+1. Ve a Firebase Console > Firestore Database > Reglas
+2. Copia y pega estas reglas simples
+3. Publica las reglas
+4. Prueba la app
+5. Si funciona, el problema era las reglas complejas
+6. Si no funciona, el problema es otra cosa
+
+IMPORTANTE: Estas reglas son MUY permisivas y solo deben usarse para testing.
+Una vez que funcione, usar las reglas más seguras del archivo firestore.rules
+*/
