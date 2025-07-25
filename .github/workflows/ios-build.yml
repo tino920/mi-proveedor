@@ -1,5 +1,5 @@
 # 🚀 GITHUB ACTIONS - BUILD iOS AUTOMÁTICO - MiProveedor
-# Configurado por MobilePro para desarrollo sin Mac
+# Configurado por MobilePro para desarrollo sin Mac - ROLLBACK STABLE
 
 name: 🍎 iOS Build - MiProveedor
 
@@ -108,8 +108,8 @@ jobs:
         echo "Verificando versiones Flutter dependencies:"
         flutter pub deps | grep firebase
       
-    # 🍎 7. Setup iOS dependencies
-    - name: 🍎 Install CocoaPods
+    # 🍎 7. Setup iOS dependencies + CocoaPods Integration Fix
+    - name: 🍎 Install CocoaPods + Integration Fix
       run: |
         cd ios
         # Limpiar pods anteriores
@@ -117,6 +117,12 @@ jobs:
         rm -rf Pods/ Podfile.lock
         # Instalar fresh
         pod install --repo-update
+        
+        echo "🔧 Aplicando CocoaPods integration fix..."
+        chmod +x ../scripts/setup_cocoapods_integration.sh
+        ../scripts/setup_cocoapods_integration.sh
+        
+        echo "✅ CocoaPods integration completed"
         
     # 🔍 8. Verificar configuración iOS
     - name: 🔍 Verify iOS Setup
