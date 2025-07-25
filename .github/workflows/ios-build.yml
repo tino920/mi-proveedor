@@ -55,29 +55,35 @@ jobs:
     - name: 📥 Checkout Repository
       uses: actions/checkout@v4
       
-    # ☕ 2. Setup Java (necesario para Flutter)
+    # 🍎 2. Setup Xcode 15+ (Required for Firebase Swift compilation)
+    - name: 🍎 Setup Xcode 15+ for Firebase Compatibility
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: '15.2'
+        
+    # ☕ 3. Setup Java (necesario para Flutter)
     - name: ☕ Setup Java
       uses: actions/setup-java@v4
       with:
         distribution: 'zulu'
         java-version: ${{ env.JAVA_VERSION }}
         
-    # 🐦 3. Setup Flutter
+    # 🐦 4. Setup Flutter
     - name: 🐦 Setup Flutter
       uses: subosito/flutter-action@v2
       with:
         flutter-version: ${{ env.FLUTTER_VERSION }}
         channel: 'stable'
         
-    # 📦 4. Install dependencies
+    # 📦 5. Install dependencies
     - name: 📦 Flutter Pub Get
       run: flutter pub get
       
-    # 🔧 5. Flutter Clean (por si acaso)
+    # 🔧 6. Flutter Clean (por si acaso)
     - name: 🔧 Flutter Clean
       run: flutter clean && flutter pub get
       
-    # 🍎 6. Setup iOS dependencies
+    # 🍎 7. Setup iOS dependencies
     - name: 🍎 Install CocoaPods
       run: |
         cd ios
@@ -87,7 +93,7 @@ jobs:
         # Instalar fresh
         pod install --repo-update
         
-    # 🔍 7. Verificar configuración iOS
+    # 🔍 8. Verificar configuración iOS
     - name: 🔍 Verify iOS Setup
       run: |
         echo "🔍 Verificando configuración iOS..."
@@ -99,14 +105,14 @@ jobs:
           echo "📋 Para apps con Firebase, añádelo a ios/Runner/"
         fi
         
-    # 📱 8. Build iOS App (sin code signing)
+    # 📱 9. Build iOS App (sin code signing)
     - name: 📱 Build iOS App
       run: |
         echo "🔨 Iniciando build iOS..."
         flutter build ios --release --no-codesign --verbose
         echo "✅ Build completado"
         
-    # 📦 9. Create IPA (sin signing para distribución)
+    # 📦 10. Create IPA (sin signing para distribución)
     - name: 📦 Create IPA Archive
       run: |
         echo "📦 Creando archivo IPA..."
@@ -133,7 +139,7 @@ jobs:
         
         echo "✅ IPA listo para descarga"
         
-    # ⬆️ 10. Upload IPA como Artifact
+    # ⬆️ 11. Upload IPA como Artifact
     - name: ⬆️ Upload IPA Artifact
       uses: actions/upload-artifact@v4
       with:
@@ -141,7 +147,7 @@ jobs:
         path: MiProveedor-iOS-*.ipa
         retention-days: 30
         
-    # 📊 11. Build Summary
+    # 📊 12. Build Summary
     - name: 📊 Build Summary
       run: |
         echo "🎉 BUILD COMPLETADO EXITOSAMENTE!"
@@ -166,13 +172,13 @@ jobs:
         echo "🚀 ¡Tu app está lista para iOS!"
         echo "   Desarrollado por MobilePro ✨"
         
-    # 🔔 12. Notificación de éxito (opcional)
+    # 🔔 13. Notificación de éxito (opcional)
     - name: 🔔 Success Notification
       if: success()
       run: |
         echo "✅ ÉXITO: Build iOS completado sin errores"
         
-    # ❌ 13. Notificación de error (opcional)  
+    # ❌ 14. Notificación de error (opcional)  
     - name: ❌ Error Notification
       if: failure()
       run: |
