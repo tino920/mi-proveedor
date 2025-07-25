@@ -55,11 +55,11 @@ jobs:
     - name: 📥 Checkout Repository
       uses: actions/checkout@v4
       
-    # 🍎 2. Setup Xcode 15+ (Required for Firebase Swift compilation)
-    - name: 🍎 Setup Xcode 15+ for Firebase Compatibility
+    # 🍎 2. Setup Xcode 16+ (Required for Firebase Swift 6.0 features)
+    - name: 🍎 Setup Xcode 16+ for Firebase Swift 6.0 Compatibility
       uses: maxim-lobanov/setup-xcode@v1
       with:
-        xcode-version: '15.2'
+        xcode-version: '16.1'
         
     # ☕ 3. Setup Java (necesario para Flutter)
     - name: ☕ Setup Java
