@@ -55,11 +55,11 @@ jobs:
     - name: 📥 Checkout Repository
       uses: actions/checkout@v4
       
-    # 🍎 2. Setup Xcode 16+ (Required for Firebase Swift 6.0 features)
-    - name: 🍎 Setup Xcode 16+ for Firebase Swift 6.0 Compatibility
+    # 🍎 2. Setup Xcode 15.x (Stable para Firebase Swift 5.x compatibility)
+    - name: 🍎 Setup Xcode 15.x for Firebase Swift 5.x Compatibility
       uses: maxim-lobanov/setup-xcode@v1
       with:
-        xcode-version: '16.1'
+        xcode-version: '15.4'
         
     # ☕ 3. Setup Java (necesario para Flutter)
     - name: ☕ Setup Java
@@ -79,9 +79,34 @@ jobs:
     - name: 📦 Flutter Pub Get
       run: flutter pub get
       
-    # 🔧 6. Flutter Clean (por si acaso)
-    - name: 🔧 Flutter Clean
-      run: flutter clean && flutter pub get
+    # 🔧 6. Flutter Clean + Force Firebase Swift 5.x Versions
+    - name: 🔧 Flutter Clean + Force Firebase Swift 5.x
+      run: |
+        echo "🔧 Limpiando proyecto completamente para Firebase Swift 5.x..."
+        flutter clean
+        
+        echo "🗑️ Eliminando locks para forzar versiones específicas:"
+        rm -f pubspec.lock
+        rm -f ios/Podfile.lock
+        rm -rf ios/Pods/
+        rm -rf build/
+        
+        echo "📦 Reinstalando dependencies con versiones Firebase Swift 5.x:"
+        flutter pub get
+        
+        echo "🔍 Configurando environment para GitHub Actions:"
+        # Fix common GitHub Actions iOS issues
+        export COCOAPODS_DISABLE_STATS=true
+        export FLUTTER_BUILD_MODE=release
+        # Ensure proper permissions
+        chmod +x ios/Runner.xcodeproj/
+        # Create required directories
+        mkdir -p ios/Runner.xcworkspace/
+        mkdir -p build/ios/iphoneos/
+        
+        echo "Environment configurado para CI builds con Firebase Swift 5.x"
+        echo "Verificando versiones Flutter dependencies:"
+        flutter pub deps | grep firebase
       
     # 🍎 7. Setup iOS dependencies
     - name: 🍎 Install CocoaPods
@@ -105,12 +130,42 @@ jobs:
           echo "📋 Para apps con Firebase, añádelo a ios/Runner/"
         fi
         
-    # 📱 9. Build iOS App (sin code signing)
+    # 📱 9. Build iOS App (sin code signing + verbose logging)
     - name: 📱 Build iOS App
       run: |
-        echo "🔨 Iniciando build iOS..."
-        flutter build ios --release --no-codesign --verbose
-        echo "✅ Build completado"
+        echo "🔨 Iniciando build iOS con logging detallado..."
+        echo "🔍 Verificando estado pre-build:"
+        ls -la ios/
+        echo "🔍 Verificando Podfile.lock:"
+        cat ios/Podfile.lock | head -20
+        echo "🔍 Verificando workspace:"
+        ls -la ios/Runner.xcworkspace/
+        
+        echo "🛠️ Configurando environment para GitHub Actions:"
+        export FLUTTER_BUILD_MODE=release
+        export COCOAPODS_DISABLE_STATS=true
+        
+        echo "🔨 Ejecutando flutter build ios con verbose logging:"
+        flutter build ios --release --no-codesign --verbose --dart-define=GITHUB_ACTIONS=true
+        
+        echo "✅ Build completado - verificando outputs:"
+        ls -la build/ios/iphoneos/
+        echo "Build status: $?"
+        
+        if [ $? -eq 0 ]; then
+          echo "✅ ÉXITO: Build iOS completado exitosamente"
+        else
+          echo "❌ ERROR: Build iOS falló - capturando información debug:"
+          echo "Flutter doctor:"
+          flutter doctor -v
+          echo "Xcode version:"
+          xcodebuild -version
+          echo "Available SDKs:"
+          xcodebuild -showsdks
+          echo "Pods status:"
+          cd ios && pod --version && cd ..
+          exit 1
+        fi
         
     # 📦 10. Create IPA (sin signing para distribución)
     - name: 📦 Create IPA Archive

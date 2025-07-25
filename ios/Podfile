@@ -1,10 +1,21 @@
-# 📱 PODFILE CORREGIDO PARA MIPROVEEDOR
-# Configuración limpia sin dependencias incorrectas
+# 📱 PODFILE CORREGIDO PARA MIPROVEEDOR - FIREBASE SWIFT 5.x COMPATIBLE
+# Configuración estable para CI/CD con versiones Firebase compatibles
 
 platform :ios, '13.0'
 
 # Configuraciones importantes  
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
+
+# 🔧 FIREBASE VERSIONES ESPECÍFICAS SWIFT 5.x COMPATIBLE
+def firebase_pods
+  pod 'Firebase/Core', '~> 10.15.0'
+  pod 'Firebase/Auth', '~> 10.15.0'
+  pod 'Firebase/Firestore', '~> 10.15.0'
+  pod 'Firebase/Storage', '~> 10.15.0'
+  pod 'Firebase/Messaging', '~> 10.15.0'
+  pod 'Firebase/Analytics', '~> 10.15.0'
+  pod 'Firebase/Crashlytics', '~> 10.15.0'
+end
 
 project 'Runner', {
   'Debug' => :debug,
