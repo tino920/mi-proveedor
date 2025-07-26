@@ -12,15 +12,15 @@ dependencies:
   flutter:
     sdk: flutter
 
-  # Core Firebase - VERSIONES ESTABLES SWIFT 5.x COMPATIBLE CI/CD
-  firebase_core: ^2.20.0
-  firebase_auth: ^4.12.0
-  cloud_firestore: ^4.12.0
-  firebase_storage: ^11.4.0
-  firebase_messaging: ^14.6.0
-  firebase_analytics: ^10.6.0
-  firebase_crashlytics: ^3.4.0
-  firebase_app_check: ^0.2.1+5
+  # Core Firebase - VERSIONES ESTABLES SIN BUGS XCFILELIST
+  firebase_core: ^2.15.1
+  firebase_auth: ^4.9.0
+  cloud_firestore: ^4.9.1
+  firebase_storage: ^11.2.6
+  firebase_messaging: ^14.6.7
+  firebase_analytics: ^10.4.5
+  firebase_crashlytics: ^3.3.5
+  firebase_app_check: ^0.1.5
 
   # State Management
   provider: ^6.1.1

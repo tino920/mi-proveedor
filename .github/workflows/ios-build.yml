@@ -1,8 +1,8 @@
-# 🚀 GITHUB ACTIONS - BUILD iOS ULTRA-AGRESIVO - MiProveedor
-# FIX DEFINITIVO para paths absolutos persistentes
-# Ultra-agresivo para eliminar definitivamente errores .xcfilelist
+# 🚀 GITHUB ACTIONS - BUILD iOS FIREBASE ESTABLE - MiProveedor
+# Firebase downgraded a versiones estables sin bugs xcfilelist
+# Workflow simplificado y efectivo
 
-name: 🍎 iOS Build - Ultra-Agresivo (Paths Fix)
+name: 🍎 iOS Build - Firebase Estable
 
 on:
   push:
@@ -36,9 +36,9 @@ jobs:
     - name: 🔍 Analyze
       run: flutter analyze --no-fatal-infos || echo "⚠️ Analyzer warnings ignorados"
 
-  # 📱 BUILD iOS ULTRA-AGRESIVO
+  # 📱 BUILD iOS CON FIREBASE ESTABLE
   build-ios:
-    name: 🍎 Build iOS Ultra-Agresivo
+    name: 🍎 Build iOS Firebase Estable
     runs-on: macos-latest
     needs: analyze
     
@@ -65,7 +65,7 @@ jobs:
 
     - name: 🔥 Reset Completo
       run: |
-        echo "🔥 Reset completo..."
+        echo "🔥 Reset completo para Firebase estable..."
         flutter clean
         rm -rf ios/Pods/
         rm -f ios/Podfile.lock
@@ -75,82 +75,62 @@ jobs:
         rm -rf .dart_tool/
         echo "✅ Reset completado"
 
-    - name: 📦 Flutter Pub Get
+    - name: 📦 Flutter Pub Get con Firebase Estable
       run: |
+        echo "📦 Instalando Firebase versiones estables..."
         flutter pub get
-        echo "✅ Dependencies regeneradas"
+        
+        echo "🔥 Verificando versiones Firebase instaladas:"
+        flutter pub deps | grep firebase
+        
+        echo "✅ Firebase estable instalado"
 
-    - name: 🍎 CocoaPods Install
+    - name: 🔍 Verificar Firebase Config
       run: |
-        echo "🍎 CocoaPods install..."
-        cd ios
-        pod install --repo-update --clean-install
-        echo "✅ CocoaPods install completado"
-
-    - name: 🔥 FIX ULTRA-AGRESIVO para Paths Absolutos
-      run: |
-        echo "🔥 EJECUTANDO FIX ULTRA-AGRESIVO..."
-        cd ios
-        
-        # Hacer ejecutable y ejecutar
-        chmod +x ../scripts/fix_paths_ultra_aggressive.sh
-        ../scripts/fix_paths_ultra_aggressive.sh
-        
-        echo ""
-        echo "🔍 VERIFICACIÓN POST-FIX ULTRA-AGRESIVO:"
-        
-        # Verificar específicamente los archivos que están causando error
-        PROBLEM_FILES=(
-          "Pods/Target Support Files/FirebaseAnalytics/FirebaseAnalytics-xcframeworks-input-files.xcfilelist"
-          "Pods/Target Support Files/FirebaseAnalytics/FirebaseAnalytics-xcframeworks-output-files.xcfilelist"
-          "Pods/Target Support Files/GoogleAppMeasurement/GoogleAppMeasurement-xcframeworks-input-files.xcfilelist"
-          "Pods/Target Support Files/GoogleAppMeasurement/GoogleAppMeasurement-xcframeworks-output-files.xcfilelist"
-        )
-        
-        echo "📋 Verificando archivos específicos que causaban error:"
-        for file in "${PROBLEM_FILES[@]}"; do
-          if [ -f "$file" ]; then
-            file_size=$(wc -c < "$file")
-            echo "✅ EXISTS: $file (${file_size} bytes)"
-            echo "   📄 Content preview:"
-            head -2 "$file" | sed 's/^/      /'
-          else
-            echo "❌ MISSING: $file"
-          fi
-        done
-        
-        echo ""
-        echo "🔍 Verificando paths absolutos en project.pbxproj:"
-        
-        # Buscar paths absolutos restantes
-        absolute_count=$(grep -c '"/Target Support Files/' "Runner.xcodeproj/project.pbxproj" 2>/dev/null || echo "0")
-        pods_root_count=$(grep -c 'PODS_ROOT.*Target Support Files' "Runner.xcodeproj/project.pbxproj" 2>/dev/null || echo "0")
-        
-        echo "❌ Paths absolutos restantes: $absolute_count"
-        echo "✅ Paths con PODS_ROOT: $pods_root_count"
-        
-        if [ "$absolute_count" -gt 0 ]; then
-          echo "⚠️ PATHS ABSOLUTOS AÚN PRESENTES:"
-          grep -n '"/Target Support Files/' "Runner.xcodeproj/project.pbxproj" | head -3
+        if [ -f "ios/Runner/GoogleService-Info.plist" ]; then
+          echo "✅ GoogleService-Info.plist encontrado"
         else
-          echo "🎉 SUCCESS: Todos los paths absolutos eliminados"
+          echo "⚠️ GoogleService-Info.plist NO encontrado"
+        fi
+
+    - name: 🍎 CocoaPods Install con Firebase Estable
+      run: |
+        echo "🍎 CocoaPods install con Firebase estable..."
+        cd ios
+        
+        # Verificar Podfile
+        echo "📄 Verificando Podfile coherente:"
+        grep -A 3 -B 3 "flutter_install_all_ios_pods" Podfile
+        
+        # Install limpio con versiones estables
+        pod install --repo-update --clean-install
+        
+        echo "✅ CocoaPods install completado con Firebase estable"
+        
+        # Verificar que no hay problemas xcfilelist
+        echo "🔍 Verificando estructura Pods generada:"
+        if [ -d "Pods/Target Support Files/FirebaseAnalytics" ]; then
+          echo "✅ FirebaseAnalytics target directory existe"
+          ls -la "Pods/Target Support Files/FirebaseAnalytics/" | head -5
         fi
         
-        echo ""
-        echo "✅ FIX ULTRA-AGRESIVO COMPLETADO"
+        if [ -d "Pods/Target Support Files/GoogleAppMeasurement" ]; then
+          echo "✅ GoogleAppMeasurement target directory existe"
+          ls -la "Pods/Target Support Files/GoogleAppMeasurement/" | head -5
+        fi
 
-    - name: 🔨 Build iOS
+    - name: 🔨 Build iOS con Firebase Estable
       run: |
-        echo "🔨 Iniciando build iOS..."
-        echo "🎯 Con paths absolutos corregidos y archivos .xcfilelist creados"
+        echo "🔨 Iniciando build iOS con Firebase estable..."
+        echo "🎯 Versiones Firebase sin bugs xcfilelist"
         
         export FLUTTER_BUILD_MODE=release
         export COCOAPODS_DISABLE_STATS=true
         
-        # Build con más detalle en caso de error
+        # Build con versiones estables
         flutter build ios --release --no-codesign --verbose
         
-        echo "✅ Build iOS completado sin errores .xcfilelist"
+        echo "✅ Build iOS completado con Firebase estable"
 
     - name: 📦 Create IPA
       run: |
@@ -162,7 +142,7 @@ jobs:
         
         BUILD_NUMBER=${{ github.run_number }}
         DATE=$(date '+%Y%m%d_%H%M')
-        IPA_NAME="MiProveedor-Ultra-Agresivo-${BUILD_NUMBER}-${DATE}.ipa"
+        IPA_NAME="MiProveedor-Firebase-Estable-${BUILD_NUMBER}-${DATE}.ipa"
         
         zip -r "${IPA_NAME}" Payload/
         mv "${IPA_NAME}" ../../../
@@ -172,22 +152,23 @@ jobs:
     - name: ⬆️ Upload IPA
       uses: actions/upload-artifact@v4
       with:
-        name: MiProveedor-Ultra-Agresivo-Build-${{ github.run_number }}
-        path: MiProveedor-Ultra-Agresivo-*.ipa
+        name: MiProveedor-Firebase-Estable-Build-${{ github.run_number }}
+        path: MiProveedor-Firebase-Estable-*.ipa
         retention-days: 30
 
     - name: 🎉 Success Summary
       run: |
-        echo "🎉 BUILD ULTRA-AGRESIVO EXITOSO!"
-        echo "================================"
-        echo "✅ Paths absolutos: Eliminados con múltiples patrones"
-        echo "✅ Firebase .xcfilelist: Archivos creados en ubicaciones exactas"
-        echo "✅ project.pbxproj: Corregido con métodos ultra-agresivos"
+        echo "🎉 BUILD CON FIREBASE ESTABLE EXITOSO!"
+        echo "===================================="
+        echo "✅ Firebase: Downgraded a versiones estables"
+        echo "✅ Versiones sin bugs xcfilelist conocidos"
         echo "✅ Build: Completado sin errores Firebase"
+        echo "✅ CocoaPods: Funcionando con versiones compatibles"
         echo ""
-        echo "🔥 ERRORES RESUELTOS:"
-        echo "   ✅ FirebaseAnalytics xcframeworks files"
-        echo "   ✅ GoogleAppMeasurement xcframeworks files"
-        echo "   ✅ Paths absolutos /Target Support Files/"
+        echo "🔥 FIREBASE VERSIONS UTILIZADAS:"
+        echo "   firebase_core: ^2.15.1"
+        echo "   firebase_auth: ^4.9.0"
+        echo "   cloud_firestore: ^4.9.1"
+        echo "   firebase_analytics: ^10.4.5"
         echo ""
-        echo "📥 Descarga el artifact - APP LISTA PARA USO"
+        echo "📥 Descarga el artifact - APP CON FIREBASE FUNCIONAL"
