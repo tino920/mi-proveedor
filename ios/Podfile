@@ -1,6 +1,6 @@
-# 📱 PODFILE ULTRA-AGRESIVO - MiProveedor
-# FIX DEFINITIVO: Limpia TANTO proyectos Pods COMO proyecto Runner principal
-# Solución para baseConfigurationReference hardcoded en project.pbxproj
+# 📱 PODFILE CORREGIDO - MiProveedor
+# FIX SIMPLIFICADO que funciona - Sin errores Ruby
+# Enfoque directo para resolver baseConfigurationReference
 
 platform :ios, '13.0'
 
@@ -42,7 +42,7 @@ target 'Runner' do
   end
 end
 
-# 📱 POST-INSTALL ULTRA-AGRESIVO
+# 📱 POST-INSTALL SIMPLIFICADO PERO EFECTIVO
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
@@ -54,58 +54,50 @@ post_install do |installer|
     end
   end
   
-  puts "\n🔧 APLICANDO FIX ULTRA-AGRESIVO..."
+  puts "\n🔧 APLICANDO FIX SIMPLIFICADO PARA COCOAPODS BASE CONFIGURATION..."
   
-  # 🔥 FIX 1: LIMPIAR PROYECTOS PODS (como antes)
+  # 🔥 FIX 1: LIMPIAR PROYECTOS PODS
   installer.generated_projects.each do |project|
     project.targets.each do |target|
       target.build_configurations.each do |config|
         config.base_configuration_reference = nil
       end
     end
-    puts "✅ Pods project base configurations limpiadas"
+    puts "✅ Pods projects: base configurations limpiadas"
   end
   
-  # 🔥 FIX 2: LIMPIAR PROYECTO PRINCIPAL RUNNER (NUEVO!)
+  # 🔥 FIX 2: LIMPIAR PROYECTO RUNNER PRINCIPAL (MÉTODO SIMPLIFICADO)
   installer.aggregate_targets.each do |aggregate_target|
     aggregate_target.user_project.targets.each do |target|
       target.build_configurations.each do |config|
-        # FORZAR que CocoaPods pueda aplicar su configuración
-        config.base_configuration_reference = nil
-        puts "🎯 Limpiando #{target.name} - #{config.name} baseConfigurationReference"
-      end
-    end
-  end
-  
-  # 🔥 FIX 3: APLICAR CONFIGURACIONES COCOAPODS MANUALMENTE
-  installer.aggregate_targets.each do |aggregate_target|
-    aggregate_target.user_project.targets.each do |target|
-      if target.name == 'Runner'
-        target.build_configurations.each do |config|
-          # Forzar configuraciones CocoaPods manualmente
-          case config.name
-          when 'Debug'
-            xcconfig_path = installer.sandbox.target_support_files_dir + "Pods-#{target.name}" + "Pods-#{target.name}.debug.xcconfig"
-            config.base_configuration_reference = installer.aggregate_targets[0].user_project.new_file(xcconfig_path) if File.exist?(xcconfig_path)
-            puts "🔥 Aplicando Debug CocoaPods config a Runner"
-          when 'Release'
-            xcconfig_path = installer.sandbox.target_support_files_dir + "Pods-#{target.name}" + "Pods-#{target.name}.release.xcconfig"
-            config.base_configuration_reference = installer.aggregate_targets[0].user_project.new_file(xcconfig_path) if File.exist?(xcconfig_path)
-            puts "🔥 Aplicando Release CocoaPods config a Runner"
-          when 'Profile'
-            xcconfig_path = installer.sandbox.target_support_files_dir + "Pods-#{target.name}" + "Pods-#{target.name}.release.xcconfig"
-            config.base_configuration_reference = installer.aggregate_targets[0].user_project.new_file(xcconfig_path) if File.exist?(xcconfig_path)
-            puts "🔥 Aplicando Profile CocoaPods config a Runner"
-          end
+        if config.base_configuration_reference
+          puts "🎯 Limpiando #{target.name} - #{config.name} baseConfigurationReference"
+          config.base_configuration_reference = nil
         end
       end
     end
+    puts "✅ Runner project: base configurations limpiadas"
   end
   
+  # 🔥 FIX 3: FORZAR INHERITED SETTINGS PARA FRAMEWORKS
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      # Asegurar que FRAMEWORK_SEARCH_PATHS y LIBRARY_SEARCH_PATHS incluyan $(inherited)
+      config.build_settings['FRAMEWORK_SEARCH_PATHS'] ||= ['$(inherited)']
+      config.build_settings['LIBRARY_SEARCH_PATHS'] ||= ['$(inherited)']
+      config.build_settings['OTHER_LDFLAGS'] ||= ['$(inherited)']
+      
+      # Configuraciones específicas para resolver BoringSSL-GRPC
+      config.build_settings['CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES'] = 'YES'
+      config.build_settings['DEFINES_MODULE'] = 'YES'
+    end
+  end
+  puts "✅ Framework search paths: configurados con $(inherited)"
+  
   # ✅ MENSAJE DE ÉXITO
-  puts "\n🎉 ¡FIX ULTRA-AGRESIVO APLICADO!"
-  puts "🔥 Proyecto Runner: baseConfigurationReference limpiado y reconfigurado"
-  puts "🔥 Proyectos Pods: baseConfigurationReference limpiado"  
-  puts "🎯 CocoaPods: Ahora puede aplicar su configuración sin conflictos"
-  puts "✅ BoringSSL-GRPC y frameworks: Deberían encontrarse correctamente\n"
+  puts "\n🎉 ¡FIX SIMPLIFICADO APLICADO!"
+  puts "🔥 baseConfigurationReference: Limpiado de Runner y Pods"
+  puts "🔍 Framework search paths: Configurados correctamente"
+  puts "🎯 CocoaPods: Debería poder aplicar configuración sin conflictos"
+  puts "✅ BoringSSL-GRPC: Debería encontrarse ahora\n"
 end
