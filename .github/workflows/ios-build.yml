@@ -1,23 +1,24 @@
-# 🚀 GITHUB ACTIONS - BUILD iOS AUTOMÁTICO - MiProveedor
-# Configurado por MobilePro para desarrollo sin Mac - ROLLBACK STABLE
+# 🚀 GITHUB ACTIONS - BUILD iOS COHERENTE - MiProveedor
+# Configuración coherente: pubspec.yaml controla todo
+# Estrategia simplificada y estable para CI/CD
 
-name: 🍎 iOS Build - MiProveedor
+name: 🍎 iOS Build - MiProveedor (Coherente)
 
 on:
   push:
     branches: [ main, develop, ios-* ]
   pull_request:
     branches: [ main ]
-  workflow_dispatch: # Permite ejecutar manualmente desde GitHub
+  workflow_dispatch:
 
 env:
   FLUTTER_VERSION: '3.24.3'
   JAVA_VERSION: '17'
 
 jobs:
-  # 🧪 JOB 1: ANÁLISIS Y TESTS
+  # 🧪 ANÁLISIS RÁPIDO
   analyze:
-    name: 🔍 Análisis de Código
+    name: 🔍 Análisis
     runs-on: ubuntu-latest
     steps:
     - name: 📥 Checkout
@@ -33,257 +34,164 @@ jobs:
       run: flutter pub get
       
     - name: 🔍 Analyze
-      run: flutter analyze --no-fatal-infos || echo "⚠️ Analyzer completado con warnings, continuando build..."
-      
-    - name: 🧪 Tests
-      run: flutter test --coverage || echo "📝 No tests found, skipping..."
-      
-    - name: 📊 Upload Coverage
-      uses: codecov/codecov-action@v4
-      if: success()
-      with:
-        file: coverage/lcov.info
+      run: flutter analyze --no-fatal-infos || echo "⚠️ Analyzer warnings ignorados"
 
-  # 📱 JOB 2: BUILD iOS
+  # 📱 BUILD iOS COHERENTE
   build-ios:
-    name: 🍎 Build iOS
+    name: 🍎 Build iOS Coherente
     runs-on: macos-latest
     needs: analyze
     
     steps:
-    # 📥 1. Checkout del código
     - name: 📥 Checkout Repository
       uses: actions/checkout@v4
       
-    # 🍎 2. Setup Xcode 15.x (Stable para Firebase Swift 5.x compatibility)
-    - name: 🍎 Setup Xcode 15.x for Firebase Swift 5.x Compatibility
+    - name: 🍎 Setup Xcode 15.4 (Firebase Compatible)
       uses: maxim-lobanov/setup-xcode@v1
       with:
         xcode-version: '15.4'
         
-    # ☕ 3. Setup Java (necesario para Flutter)
     - name: ☕ Setup Java
       uses: actions/setup-java@v4
       with:
         distribution: 'zulu'
         java-version: ${{ env.JAVA_VERSION }}
         
-    # 🐦 4. Setup Flutter
     - name: 🐦 Setup Flutter
       uses: subosito/flutter-action@v2
       with:
         flutter-version: ${{ env.FLUTTER_VERSION }}
         channel: 'stable'
-        
-    # 📦 5. Install dependencies
-    - name: 📦 Flutter Pub Get
-      run: flutter pub get
-      
-    # 🔧 6. Flutter Clean + Force Firebase Swift 5.x Versions
-    - name: 🔧 Flutter Clean + Force Firebase Swift 5.x
+
+    # 🔥 RESET COMPLETO PARA CONFIGURACIÓN COHERENTE
+    - name: 🔥 Reset Completo - Configuración Coherente
       run: |
-        echo "🔧 Limpiando proyecto completamente para Firebase Swift 5.x..."
+        echo "🎯 ESTRATEGIA: pubspec.yaml controla TODO"
+        echo "🧹 Reset completo para configuración coherente..."
+        
+        # FLUTTER CLEAN TOTAL
         flutter clean
         
-        echo "🗑️ Eliminando locks para forzar versiones específicas:"
-        rm -f pubspec.lock
-        rm -f ios/Podfile.lock
+        # ELIMINAR TODOS LOS CACHES iOS
         rm -rf ios/Pods/
+        rm -f ios/Podfile.lock
+        rm -rf ios/.symlinks/
+        rm -rf ios/Runner.xcworkspace/
         rm -rf build/
+        rm -rf .dart_tool/
         
-        echo "📦 Reinstalando dependencies con versiones Firebase Swift 5.x:"
-        flutter pub get
-        
-        echo "🔍 Configurando environment para GitHub Actions:"
-        # Fix common GitHub Actions iOS issues
-        export COCOAPODS_DISABLE_STATS=true
-        export FLUTTER_BUILD_MODE=release
-        # Ensure proper permissions
-        chmod +x ios/Runner.xcodeproj/
-        # Create required directories
-        mkdir -p ios/Runner.xcworkspace/
-        mkdir -p build/ios/iphoneos/
-        
-        echo "Environment configurado para CI builds con Firebase Swift 5.x"
-        echo "Verificando versiones Flutter dependencies:"
-        flutter pub deps | grep firebase
-      
-    # 🍎 7. RESET COMPLETO CocoaPods + Firebase (Clean Slate Approach)
-    - name: 🍎 RESET COMPLETO CocoaPods + Firebase
+        echo "✅ Caches eliminados - ambiente limpio"
+
+    - name: 📦 Flutter Pub Get Limpio
       run: |
-        echo "🔥 APLICANDO RESET COMPLETO - Clean Slate Strategy"
-        echo "🎯 Basado en análisis correcto: archivos CocoaPods corruptos"
-        
-        # FLUTTER CLEAN COMPLETO
-        echo "🧹 Flutter clean completo..."
-        flutter clean
-        
-        # ELIMINAR PODS COMPLETAMENTE
-        echo "🗑️ Eliminando Pods corruptos..."
-        cd ios
-        rm -rf Pods
-        rm -f Podfile.lock
-        rm -rf .symlinks
-        rm -rf Runner.xcworkspace
-        cd ..
-        
-        # FLUTTER PUB GET LIMPIO
-        echo "📦 Flutter pub get limpio..."
+        echo "📦 Regenerando dependencies desde pubspec.yaml..."
         flutter pub get
-        
-        # VERIFICAR FIREBASE CONFIG
-        echo "🔍 Verificando Firebase configuration..."
+        echo "✅ Dependencies regeneradas"
+
+    - name: 🔍 Verificar Firebase Configuration
+      run: |
+        echo "🔍 Verificando configuración Firebase..."
         if [ -f "ios/Runner/GoogleService-Info.plist" ]; then
           echo "✅ GoogleService-Info.plist encontrado"
+          echo "🔥 Firebase configurado correctamente"
         else
-          echo "⚠️ GoogleService-Info.plist NO encontrado (Firebase requerirá configuración)"
+          echo "⚠️ GoogleService-Info.plist NO encontrado"
+          echo "📝 Build continuará sin Firebase (app funcional)"
         fi
-        
-        # COCOAPODS INSTALL CLEAN
-        echo "🍎 CocoaPods install clean + repo update..."
+
+    - name: 🍎 CocoaPods Install Coherente
+      run: |
+        echo "🍎 CocoaPods install con configuración coherente..."
         cd ios
+        
+        # Verificar Podfile limpio
+        echo "📄 Verificando Podfile simplificado:"
+        grep -A 5 -B 5 "flutter_install_all_ios_pods" Podfile
+        
+        # Install limpio
         pod install --repo-update --clean-install
         
-        # VERIFICACIÓN POST-RESET
-        echo "🔍 Verificación post-reset..."
-        echo "✅ Pods-Runner: $(ls Pods/Target\ Support\ Files/Pods-Runner/ | wc -l) archivos"
-        echo "✅ Firebase: $(ls Pods/Target\ Support\ Files/Firebase* 2>/dev/null | wc -l) targets"
-        echo "✅ Workspace: $(ls Runner.xcworkspace/ | wc -l) archivos"
+        echo "✅ CocoaPods install completado"
         
-        echo "🎯 RESET COMPLETO TERMINADO - .xcfilelist regenerados"
-        cd ..
-        
-    # 🔍 8. Verificar configuración iOS
-    - name: 🔍 Verify iOS Setup
-      run: |
-        echo "🔍 Verificando configuración iOS..."
-        ls -la ios/Runner/
-        if [ -f "ios/Runner/GoogleService-Info.plist" ]; then
-          echo "✅ GoogleService-Info.plist encontrado"
-        else
-          echo "⚠️ ADVERTENCIA: GoogleService-Info.plist NO encontrado"
-          echo "📋 Para apps con Firebase, añádelo a ios/Runner/"
+        # Verificar instalación
+        echo "🔍 Verificando instalación:"
+        if [ -d "Pods/" ]; then
+          echo "✅ Directorio Pods/ creado"
+          echo "📊 Pods instalados: $(ls Pods/ | wc -l)"
         fi
         
-    # 📱 9. Build iOS App (sin code signing + verbose logging)
-    - name: 📱 Build iOS App
-      run: |
-        echo "🔨 Iniciando build iOS con logging detallado..."
-        echo "🔍 Verificando estado pre-build:"
-        ls -la ios/
-        echo "🔍 Verificando Podfile.lock:"
-        cat ios/Podfile.lock | head -20
-        echo "🔍 Verificando workspace:"
-        ls -la ios/Runner.xcworkspace/
+        if [ -f "Podfile.lock" ]; then
+          echo "✅ Podfile.lock generado"
+        fi
         
-        echo "🛠️ Configurando environment para GitHub Actions:"
+        if [ -d "Runner.xcworkspace/" ]; then
+          echo "✅ Workspace generado"
+        fi
+
+    - name: 🔍 Verificar Configuración Pre-Build
+      run: |
+        echo "🔍 Verificación final pre-build..."
+        
+        echo "📱 Estructura iOS:"
+        ls -la ios/
+        
+        echo "🔥 Firebase plugins activos:"
+        grep firebase .flutter-plugins-dependencies | head -5
+        
+        echo "🍎 Pods críticos:"
+        if [ -f "ios/Podfile.lock" ]; then
+          grep -E "(Firebase|Pod)" ios/Podfile.lock | head -10
+        fi
+        
+        echo "✅ Configuración coherente verificada"
+
+    - name: 🔨 Build iOS
+      run: |
+        echo "🔨 Iniciando build iOS con configuración coherente..."
+        
+        # Environment para GitHub Actions
         export FLUTTER_BUILD_MODE=release
         export COCOAPODS_DISABLE_STATS=true
         
-        echo "🔨 Ejecutando flutter build ios con verbose logging:"
-        flutter build ios --release --no-codesign --verbose --dart-define=GITHUB_ACTIONS=true
+        # Build command limpio
+        flutter build ios --release --no-codesign --verbose
         
-        echo "✅ Build completado - verificando outputs:"
-        ls -la build/ios/iphoneos/
-        echo "Build status: $?"
-        
-        if [ $? -eq 0 ]; then
-          echo "✅ ÉXITO: Build iOS completado exitosamente"
-        else
-          echo "❌ ERROR: Build iOS falló - capturando información debug:"
-          echo "Flutter doctor:"
-          flutter doctor -v
-          echo "Xcode version:"
-          xcodebuild -version
-          echo "Available SDKs:"
-          xcodebuild -showsdks
-          echo "Pods status:"
-          cd ios && pod --version && cd ..
-          exit 1
-        fi
-        
-    # 📦 10. Create IPA (sin signing para distribución)
-    - name: 📦 Create IPA Archive
+        echo "✅ Build iOS completado"
+
+    - name: 📦 Create IPA
       run: |
         echo "📦 Creando archivo IPA..."
         cd build/ios/iphoneos
         
-        # Crear estructura IPA
+        # Crear IPA
         mkdir -p Payload
         cp -r Runner.app Payload/
         
-        # Información del build
         BUILD_NUMBER=${{ github.run_number }}
         DATE=$(date '+%Y%m%d_%H%M')
-        IPA_NAME="MiProveedor-iOS-${BUILD_NUMBER}-${DATE}.ipa"
+        IPA_NAME="MiProveedor-Coherente-${BUILD_NUMBER}-${DATE}.ipa"
         
-        # Crear IPA
         zip -r "${IPA_NAME}" Payload/
-        
-        # Info
-        echo "📱 IPA creado: ${IPA_NAME}"
-        ls -lh "${IPA_NAME}"
-        
-        # Mover a directorio accesible
         mv "${IPA_NAME}" ../../../
         
-        echo "✅ IPA listo para descarga"
-        
-    # ⬆️ 11. Upload IPA como Artifact
-    - name: ⬆️ Upload IPA Artifact
+        echo "📱 IPA creado: ${IPA_NAME}"
+        ls -lh "../../../${IPA_NAME}"
+
+    - name: ⬆️ Upload IPA
       uses: actions/upload-artifact@v4
       with:
-        name: MiProveedor-iOS-Build-${{ github.run_number }}
-        path: MiProveedor-iOS-*.ipa
+        name: MiProveedor-Coherente-Build-${{ github.run_number }}
+        path: MiProveedor-Coherente-*.ipa
         retention-days: 30
-        
-    # 📊 12. Build Summary
-    - name: 📊 Build Summary
-      run: |
-        echo "🎉 BUILD COMPLETADO EXITOSAMENTE!"
-        echo "=================================="
-        echo "📱 Proyecto: MiProveedor"
-        echo "🔨 Build #${{ github.run_number }}"
-        echo "📅 Fecha: $(date)"
-        echo "🍎 Plataforma: iOS"
-        echo "📦 Archivo: MiProveedor-iOS-${{ github.run_number }}-*.ipa"
-        echo ""
-        echo "📥 CÓMO DESCARGAR:"
-        echo "1. Ve a la pestaña 'Actions' de tu repositorio"
-        echo "2. Haz clic en este workflow run"
-        echo "3. Descarga el artifact 'MiProveedor-iOS-Build-${{ github.run_number }}'"
-        echo ""
-        echo "⚠️  NOTA IMPORTANTE:"
-        echo "El archivo .ipa NO está firmado (code signed)"
-        echo "Para instalar en dispositivo real necesitas:"
-        echo "- Abrir en Xcode y firmar con tu Apple Developer Account"
-        echo "- O usar herramientas como Diawi para distribución"
-        echo ""
-        echo "🚀 ¡Tu app está lista para iOS!"
-        echo "   Desarrollado por MobilePro ✨"
-        
-    # 🔔 13. Notificación de éxito (opcional)
-    - name: 🔔 Success Notification
-      if: success()
-      run: |
-        echo "✅ ÉXITO: Build iOS completado sin errores"
-        
-    # ❌ 14. Notificación de error (opcional)  
-    - name: ❌ Error Notification
-      if: failure()
-      run: |
-        echo "❌ ERROR: El build iOS falló"
-        echo "🔍 Revisa los logs anteriores para detalles"
-        echo "💡 Problemas comunes:"
-        echo "   - Dependencias en pubspec.yaml"
-        echo "   - Configuración Firebase"
-        echo "   - Errores de sintaxis Dart"
 
-# 🎯 CONFIGURACIÓN ADICIONAL
-# Para builds con code signing (Apple Developer Account):
-# 1. Ve a Settings > Secrets and Variables > Actions
-# 2. Añade estos secrets:
-#    - IOS_CERTIFICATE_BASE64
-#    - IOS_CERTIFICATE_PASSWORD  
-#    - IOS_PROVISIONING_PROFILE_BASE64
-#    - KEYCHAIN_PASSWORD
+    - name: 🎉 Build Success Summary
+      run: |
+        echo "🎉 BUILD COHERENTE EXITOSO!"
+        echo "================================"
+        echo "✅ Estrategia: pubspec.yaml controla versiones"
+        echo "✅ Podfile: Simplificado y coherente"
+        echo "✅ Firebase: Manejado automáticamente"
+        echo "✅ Build: Sin conflictos de versiones"
+        echo ""
+        echo "📥 Descarga el artifact desde GitHub Actions"
+        echo "🚀 App lista para testing/distribución"

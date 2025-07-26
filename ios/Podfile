@@ -1,21 +1,11 @@
-# 📱 PODFILE CORREGIDO PARA MIPROVEEDOR - FIREBASE SWIFT 5.x COMPATIBLE
-# Configuración estable para CI/CD con versiones Firebase compatibles
+# 📱 PODFILE SIMPLIFICADO - MiProveedor
+# Configuración limpia: pubspec.yaml controla versiones Firebase
+# Estrategia coherente para CI/CD estable
 
 platform :ios, '13.0'
 
-# Configuraciones importantes  
+# Configuraciones CI/CD
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
-
-# 🔧 FIREBASE VERSIONES ESPECÍFICAS SWIFT 5.x COMPATIBLE
-def firebase_pods
-  pod 'Firebase/Core', '~> 10.15.0'
-  pod 'Firebase/Auth', '~> 10.15.0'
-  pod 'Firebase/Firestore', '~> 10.15.0'
-  pod 'Firebase/Storage', '~> 10.15.0'
-  pod 'Firebase/Messaging', '~> 10.15.0'
-  pod 'Firebase/Analytics', '~> 10.15.0'
-  pod 'Firebase/Crashlytics', '~> 10.15.0'
-end
 
 project 'Runner', {
   'Debug' => :debug,
@@ -44,7 +34,8 @@ target 'Runner' do
   use_frameworks!
   use_modular_headers!
 
-  # 🔥 FLUTTER PODS AUTOMÁTICO (esto es lo único que necesitamos)
+  # 🔥 FLUTTER MANEJA TODAS LAS DEPENDENCIAS (incluyendo Firebase)
+  # Las versiones se controlan desde pubspec.yaml ÚNICAMENTE
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
   
   target 'RunnerTests' do
@@ -52,20 +43,19 @@ target 'Runner' do
   end
 end
 
-# 📱 CONFIGURACIONES POST-INSTALACIÓN CON FIX LINKER
+# 📱 CONFIGURACIÓN POST-INSTALACIÓN LIMPIA
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
     
-    # 🎯 CONFIGURAR DEPLOYMENT TARGET
+    # 🎯 CONFIGURAR DEPLOYMENT TARGET CONSISTENTE
     target.build_configurations.each do |config|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
       config.build_settings['ENABLE_BITCODE'] = 'NO'
     end
   end
   
-  # 🔧 FIX CRÍTICO: Forzar configuración de CocoaPods para GitHub Actions
-  # Elimina configuraciones personalizadas para que CocoaPods pueda aplicar las suyas
+  # 🔧 FIX PARA GITHUB ACTIONS: CocoaPods base configuration
   installer.generated_projects.each do |project|
     project.targets.each do |target|
       target.build_configurations.each do |config|
@@ -75,9 +65,9 @@ post_install do |installer|
   end
   
   # ✅ MENSAJE DE ÉXITO
-  puts "\n🎉 ¡Pods instalados correctamente para MiProveedor!"
-  puts "📱 Configuración iOS limpia y funcional"
-  puts "🔥 Flutter dependencies gestionadas automáticamente"
-  puts "🔧 FIX: CocoaPods base configuration aplicada"
-  puts "\n✅ Listo para build iOS\n"
+  puts "\n🎉 ¡MiProveedor - Configuración coherente aplicada!"
+  puts "📱 iOS target: 13.0+"
+  puts "🔥 Firebase: Controlado por pubspec.yaml"
+  puts "🔧 GitHub Actions: Compatible"
+  puts "✅ Listo para build estable\n"
 end
