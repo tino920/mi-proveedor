@@ -1,10 +1,9 @@
 #!/bin/bash
 
 # Script para configurar CocoaPods integration automáticamente
+# ASUME que se ejecuta desde el directorio ios/ (GitHub Actions workflow)
 echo "🔧 Configurando CocoaPods integration en Xcode project..."
-
-# Navegar al directorio iOS
-cd ios
+echo "📂 Working directory: $(pwd)"
 
 # Verificar que los archivos existen
 if [ ! -f "Pods/Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig" ]; then
