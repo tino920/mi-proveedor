@@ -108,21 +108,50 @@ jobs:
         echo "Verificando versiones Flutter dependencies:"
         flutter pub deps | grep firebase
       
-    # 🍎 7. Setup iOS dependencies + CocoaPods Integration Fix
-    - name: 🍎 Install CocoaPods + Integration Fix
+    # 🍎 7. RESET COMPLETO CocoaPods + Firebase (Clean Slate Approach)
+    - name: 🍎 RESET COMPLETO CocoaPods + Firebase
       run: |
+        echo "🔥 APLICANDO RESET COMPLETO - Clean Slate Strategy"
+        echo "🎯 Basado en análisis correcto: archivos CocoaPods corruptos"
+        
+        # FLUTTER CLEAN COMPLETO
+        echo "🧹 Flutter clean completo..."
+        flutter clean
+        
+        # ELIMINAR PODS COMPLETAMENTE
+        echo "🗑️ Eliminando Pods corruptos..."
         cd ios
-        # Limpiar pods anteriores
-        pod deintegrate 2>/dev/null || true
-        rm -rf Pods/ Podfile.lock
-        # Instalar fresh
-        pod install --repo-update
+        rm -rf Pods
+        rm -f Podfile.lock
+        rm -rf .symlinks
+        rm -rf Runner.xcworkspace
+        cd ..
         
-        echo "🔧 Aplicando CocoaPods integration fix..."
-        chmod +x ../scripts/setup_cocoapods_integration.sh
-        ../scripts/setup_cocoapods_integration.sh
+        # FLUTTER PUB GET LIMPIO
+        echo "📦 Flutter pub get limpio..."
+        flutter pub get
         
-        echo "✅ CocoaPods integration completed"
+        # VERIFICAR FIREBASE CONFIG
+        echo "🔍 Verificando Firebase configuration..."
+        if [ -f "ios/Runner/GoogleService-Info.plist" ]; then
+          echo "✅ GoogleService-Info.plist encontrado"
+        else
+          echo "⚠️ GoogleService-Info.plist NO encontrado (Firebase requerirá configuración)"
+        fi
+        
+        # COCOAPODS INSTALL CLEAN
+        echo "🍎 CocoaPods install clean + repo update..."
+        cd ios
+        pod install --repo-update --clean-install
+        
+        # VERIFICACIÓN POST-RESET
+        echo "🔍 Verificación post-reset..."
+        echo "✅ Pods-Runner: $(ls Pods/Target\ Support\ Files/Pods-Runner/ | wc -l) archivos"
+        echo "✅ Firebase: $(ls Pods/Target\ Support\ Files/Firebase* 2>/dev/null | wc -l) targets"
+        echo "✅ Workspace: $(ls Runner.xcworkspace/ | wc -l) archivos"
+        
+        echo "🎯 RESET COMPLETO TERMINADO - .xcfilelist regenerados"
+        cd ..
         
     # 🔍 8. Verificar configuración iOS
     - name: 🔍 Verify iOS Setup
